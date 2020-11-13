@@ -8,25 +8,63 @@ const { host, port } = require('./config/http');
 require('./models/Track');
 const Track = mongoose.model('tracks');
 
+const attributePropertyTable = {
+    account: {
+        label: 'Account',
+        size: 32,
+        type: 'string',
+        isRequired: true
+    },
+}
+
+function validateTrackingAttribute(attribute, name) {
+    const { size } = attributePropertyTable[name];
+    const { type } = attributePropertyTable[name];
+
+    if (!attribute) {
+        throw new Error(`${name} has to be defined!`);
+    }
+    if (typeof attribute !== type) {
+        throw new Error(`${name} has to be of type ${type}`);
+    }
+    if (size && attribute.length > size) {
+        throw new Error(`Account has a limit of 32 characters`);
+    }
+}
+
+function validateTrackingData(data) {
+    Object.entries(attributePropertyTable).forEach(({ label }) => { // !!
+
+    });
+}
+
+async function saveTrack(trackingData) {
+    validateTrackingData(trackingData);
+
+    const { account, application, typ, event, value } = trackingData;          
+    const track = await new Track({ accountKey, applicationKey, eventType }).save();
+    return track;
+}
+
 const server = http.createServer((req, res) => {
     const fullRequestURI = `${req.connection.encrypted ? 'https' : 'http'}://${req.headers.host}${req.url}`;
     if(fullRequestURI === trackingURL && req.method == 'POST') {
         let body = '';
+        // check total size of Data, has to be < ~1KB
         req.on('data', (data) => {
             body += data;
         });
 
         req.on('end', async () => {
             try {
-                const { accountKey, applicationKey, eventType } = JSON.parse(body);
-                const track = await new Track({ accountKey, applicationKey, eventType }).save();
+                await saveTrack(JSON.parse(body));
+
+                res.writeHead(200, {'Content-Type': 'text/html'});
+                res.end('Track received successfully');
             } catch (e) {
                 res.writeHead(500);
                 res.end(e);
             }
-            
-            res.writeHead(200, {'Content-Type': 'text/html'});
-            res.end('Track received successfully');
         });
     } else {
         console.log(fullRequestURI);

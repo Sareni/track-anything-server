@@ -1,23 +1,28 @@
 const redis = require('redis');
+const { promisify } = require("util");
 
 const { handleResponse } = require('../utils');
 const keys = require('../config/keys');
+const { ATTRIBUTES, ATTRIBUTE_PROPERTIES, PLANS, PLAN_PROPERTIES } = require('../constants/constants');
 
 const redisClient = redis.createClient({
     port: keys.redis_port,
     host: keys.redis_host,
-    //password: keys.redis_password, // has to be configured
+    password: keys.redis_password,
 });
 
+const redisGetAsync = promisify(redisClient.get).bind(redisClient);
+const redisSetAsync = promisify(redisClient.set).bind(redisClient);
+
 async function checkAndUpdateLastAccess(account) {
-    const data = await redisClient.get(account);
+    const data = await redisGetAsync(account);
     const [plan, time] = data.split(';');
     const timeNextTrackAllowed = parseInt(time) + PLAN_PROPERTIES[PLANS[plan]].msBetweenTracks;
     const now = Date.now();
     if (timeNextTrackAllowed > now) {
         throw new Error('Track not allowed yet! Upgrade Account if more tracks needed.');
     }
-    await redisClient.set(account, `${plan};${now}`);
+    await redisSetAsync(account, `${plan};${now}`);
 }
 
 
@@ -25,18 +30,20 @@ async function updateAccount(account, newPlan, newTime) {
     if (!account) {
         throw new Error('UpdateAccount: Account has to be set');
     }
-    if (!PLANS[newPlan])
+    if (!PLANS[newPlan]) {
+        throw new Error('UpdateAccount: Plan not found');
+    }
 
     // no need to get old data if both plan and time are changed
     if (newPlan && newTime) {
-        redisClient.set(account, `${newPlan};${newTime}`);
+        await redisClient.set(account, `${newPlan};${newTime}`);
         return;
     } else {
-        const data = await redisClient.get(account);
+        const data = await redisGetAsync(account);
         const [oldPlan, oldTime] = data.split(';');
         const plan = newPlan ? newPlan : oldPlan;
         const time = newTime ? newTime : oldTime;
-        redisClient.set(account, `${plan};${time}`);
+        await redisSetAsync(account, `${plan};${time}`);
     }
 }
 
@@ -45,7 +52,7 @@ async function createAccount(account, plan) {
     if (!plan) {
         throw new Error('createAccount: Plan has to be defined');
     }
-    redisClient.set(account, `${plan};0`);
+    await redisSetAsync(account, `${plan};0`);
 }
 
 function handleNewAccount(req, res) {
@@ -68,9 +75,8 @@ function handleNewAccount(req, res) {
         } catch (e) {
             responseObject = {
                 writeHead: [500],
-                end: JSON.stringify(e)
+                end: e.toString()
             };
-            console.log(e);
         } finally  {
             handleResponse(res, responseObject);
         }
@@ -91,15 +97,14 @@ function handleUpdateAccount(req, res) {
             await updateAccount(account, plan, time);
             responseObject = {
                 writeHead: [200, {'Content-Type': 'text/html'}],
-                end: 'Account created!'
+                end: 'Account updated!'
             };
             
         } catch (e) {
             responseObject = {
                 writeHead: [500],
-                end: JSON.stringify(e)
+                end: e.toString()
             };
-            console.log(e);
         } finally  {
             handleResponse(res, responseObject);
         }
@@ -108,6 +113,7 @@ function handleUpdateAccount(req, res) {
 
 
 module.exports = {
+    checkAndUpdateLastAccess,
     handleNewAccount,
     handleUpdateAccount
 }

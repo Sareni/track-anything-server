@@ -1,6 +1,7 @@
 
 const mongoose = require('mongoose');
 
+const { checkAndUpdateLastAccess } = require('./account');
 const { ATTRIBUTES, ATTRIBUTE_PROPERTIES, PLANS, PLAN_PROPERTIES } = require('../constants/constants');
 const { handleResponse } = require('../utils');
 
@@ -59,7 +60,7 @@ function handleNewTrack(req, res) {
         } catch (e) {
             responseObject = {
                 writeHead: [500],
-                end: e
+                end: e.toString()
             };
         } finally  {
             handleResponse(res, responseObject);

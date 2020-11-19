@@ -18,7 +18,7 @@ const ATTRIBUTE_PROPERTIES = Object.freeze({
         isRequired: true
     }),
     application: Object.freeze({
-        label: 'Account',
+        label: 'Application',
         length: 32,
         type: 'string',
         isRequired: true

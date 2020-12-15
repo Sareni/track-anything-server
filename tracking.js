@@ -1,12 +1,11 @@
 
 const mongoose = require('mongoose');
 
-const { checkAndUpdateLastAccess } = require('./account');
-const { ATTRIBUTES, ATTRIBUTE_PROPERTIES, PLANS, PLAN_PROPERTIES } = require('../constants/constants');
-const { handleResponse } = require('../utils');
-
+const { ATTRIBUTES, ATTRIBUTE_PROPERTIES, PLANS, PLAN_PROPERTIES } = require('./constants/constants');
+const keys = require('./config/keys');
+const serverConfig = require('./config/server');
+const { checkGlobalAccessList, checkAndUpdateLocalAccessList } = require('./access');
 const Track = mongoose.model('tracks');
-
 
 function validateTrackingAttribute(attribute, properties) {
     const { label, length, type, isRequired} = properties;
@@ -34,40 +33,15 @@ function validateTrackingData(data) {
 
 async function saveTrack(trackingData) {
     validateTrackingData(trackingData);
-    await checkAndUpdateLastAccess(trackingData.account);
+    checkGlobalAccessList(trackingData.account);
+    await checkAndUpdateLocalAccessList(trackingData.account);
 
     const { account, application, type, event, value } = trackingData;          
     const track = await new Track({ account, application, type }).save();
     return track;
 }
 
-function handleNewTrack(req, res) {
-    let body = '';
-    let responseObject;
-    // check total size of Data, has to be < ~1KB
-    req.on('data', (data) => {
-        body += data;
-    });
-
-    req.on('end', async () => {
-        try {
-            await saveTrack(JSON.parse(body));
-            responseObject = {
-                writeHead: [200, {'Content-Type': 'text/html'}],
-                end: 'Track received successfully'
-            };
-            
-        } catch (e) {
-            responseObject = {
-                writeHead: [500],
-                end: e.toString()
-            };
-        } finally  {
-            handleResponse(res, responseObject);
-        }
-    });
-}
-
 module.exports = {
-    handleNewTrack
+    saveTrack,
+    updateGlobalAccessList
 }

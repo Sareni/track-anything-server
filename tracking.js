@@ -42,6 +42,5 @@ async function saveTrack(trackingData) {
 }
 
 module.exports = {
-    saveTrack,
-    updateGlobalAccessList
+    saveTrack
 }

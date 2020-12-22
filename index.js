@@ -1,5 +1,6 @@
 const http = require('http');
 const mongoose = require('mongoose');
+require('./models/Track');
 
 const { mongodbConnectionString } = require('./config/keys');
 const { host, port } = require('./config/http');
@@ -7,7 +8,7 @@ const { handleResponse } = require('./utils');
 const { handlePOST } = require('./routing');
 const { initGlobalAccessList } = require('./access');
 
-require('./models/Track');
+
 
 async function initServer() {
     await initGlobalAccessList();
@@ -27,4 +28,13 @@ async function initServer() {
     console.log(`Tracking Server listening at http://${host}:${port}`);
 }
 
-await initServer();
+
+(async () => {
+    try {
+        await initServer();
+    } catch (err) {
+      console.log('error: ' + err)
+    }
+  })()
+console.log('server initialized');
+

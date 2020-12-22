@@ -1,7 +1,7 @@
 const redis = require('redis');
 const { promisify } = require("util");
 
-
+const routes = require('./config/routes');
 const keys = require('./config/keys');
 
 const redisClient = redis.createClient({
@@ -21,7 +21,7 @@ let localTrackingCount = 0;
 
 async function initGlobalAccessList() {
     try {
-        globalAccessList = await axios.get(keys.accountManagementServerURI + '/fullList');
+        globalAccessList = await axios.get(routes.accessManagementServerURL + '/fullList');
     } catch (e) {
         console.log(e);
     }
@@ -72,7 +72,7 @@ function updateLocalTrackingList(account) {
 
 function sendTrackingList() {
     // TODO: race condition?
-    axios.post(keys.accountManagementServerURI + '/trackingList', localTrackingList)
+    axios.post(routes.accessManagementServerURL + '/trackingList', localTrackingList)
          .catch(function (error) {
             console.log(error);
          });

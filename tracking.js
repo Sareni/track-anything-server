@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 
 const { ATTRIBUTES, ATTRIBUTE_PROPERTIES, PLANS, PLAN_PROPERTIES } = require('./constants/constants');
 const keys = require('./config/keys');
-const serverConfig = require('./config/server');
 const { checkGlobalAccessList, checkAndUpdateLocalAccessList } = require('./access');
 const Track = mongoose.model('tracks');
 
@@ -36,8 +35,8 @@ async function saveTrack(trackingData) {
     checkGlobalAccessList(trackingData.account);
     await checkAndUpdateLocalAccessList(trackingData.account);
 
-    const { account, application, type, event, value } = trackingData;          
-    const track = await new Track({ account, application, type }).save();
+    const { account, application, type, event, value } = trackingData;         
+    const track = await new Track({ account, application, type }).save();   
     return track;
 }
 

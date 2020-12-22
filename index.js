@@ -32,9 +32,10 @@ async function initServer() {
 (async () => {
     try {
         await initServer();
+        console.log('server initialized');
     } catch (err) {
       console.log('error: ' + err)
     }
-  })()
-console.log('server initialized');
+  })();
+
 

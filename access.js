@@ -1,6 +1,8 @@
 const redis = require('redis');
 const { promisify } = require("util");
+const axios = require('axios');
 
+const serverConfig = require('./config/server');
 const routes = require('./config/routes');
 const keys = require('./config/keys');
 
@@ -21,7 +23,8 @@ let localTrackingCount = 0;
 
 async function initGlobalAccessList() {
     try {
-        globalAccessList = await axios.get(routes.accessManagementServerURL + '/fullList');
+        const response = await axios.get(routes.accessManagementServerURL + '/fullList');
+        globalAccessList = response.data;
     } catch (e) {
         console.log(e);
     }
@@ -38,15 +41,17 @@ function updateGlobalAccessList(data) {
 
 function checkGlobalAccessList(account) {
     // check in local copy of the global access list if tracking is allowed for the account
-    return globalAccessList[account];
+    if (!globalAccessList[account]) {
+        throw new Error('account not found');
+    }
 }
 
 
 async function checkAndUpdateLocalAccessList(account) {
+    const now = Date.now();
     const data = await redisGetAsync(account);
     if (data) {
         const timeNextTrackAllowed = parseInt(data) + serverConfig.trackingTimeout;
-        const now = Date.now();
         if (timeNextTrackAllowed > now) {
             throw new Error('Track not allowed yet! Upgrade Account to Business if more tracks are needed.');
         }

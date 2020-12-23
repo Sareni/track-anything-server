@@ -1,5 +1,6 @@
 const http = require('http');
 const mongoose = require('mongoose');
+const schedule = require('node-schedule');
 require('./models/Track');
 
 const { mongodbConnectionString } = require('./config/keys');
@@ -38,4 +39,8 @@ async function initServer() {
     }
   })();
 
+  // run at 4:05 AM
+schedule.scheduleJob('5 4 * * *', () => {
+    initGlobalAccessList(); // await is not needed
+  });
 

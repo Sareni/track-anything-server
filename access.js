@@ -31,8 +31,9 @@ async function initGlobalAccessList() {
 }
 
 function updateGlobalAccessList(data) {
+    const response = JSON.parse(data);
     // update local copy of global account list (create, upgrade, delete user etc., user ran out of tracks, ...)
-    Object.entries(data).forEach((entry) => {
+    Object.entries(response).forEach((entry) => {
         const [key, value] = entry; // TODO shorten entry
         globalAccessList[key] = value;
     });
@@ -42,7 +43,7 @@ function updateGlobalAccessList(data) {
 function checkGlobalAccessList(account) {
     // check in local copy of the global access list if tracking is allowed for the account
     if (!globalAccessList[account]) {
-        throw new Error('account not found');
+        throw new Error('account has no access or not found');
     }
 }
 
@@ -82,7 +83,7 @@ function sendTrackingList() {
             console.log(error);
          });
     trackingAccessList = {};
-    trackCount = 0;
+    localTrackingCount = 0;
 }
 
 module.exports = {

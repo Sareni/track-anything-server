@@ -13,7 +13,7 @@ const PLANS = Object.freeze({
 const ATTRIBUTE_PROPERTIES = Object.freeze({
     account: Object.freeze({
         label: 'Account',
-        length: 32,
+        length: 36, //uuid v4
         type: 'string',
         isRequired: true
     }),

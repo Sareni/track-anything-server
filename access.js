@@ -71,7 +71,7 @@ function updateLocalTrackingList(account) {
     }
     localTrackingCount += 1;
 
-    if (localTrackingCount >= 10) {
+    if (localTrackingCount >= serverConfig.trackingCount) {
         sendTrackingList();
     }
 }

@@ -1,10 +1,31 @@
+const databaseToUse = require('./config/keys').databaseName;
 
-const mongoose = require('mongoose');
+let connection;
+let db;
+
+if (databaseToUse === 'MongoDB') {
+    db = require('mongoose');
+  } else if (databaseToUse === 'MySQL') {
+    connection = require('./mysql_lib').getConnection();
+  }
+  
 
 const { ATTRIBUTES, ATTRIBUTE_PROPERTIES, PLANS, PLAN_PROPERTIES } = require('./constants/constants');
 const keys = require('./config/keys');
 const { checkGlobalAccessList, checkAndUpdateLocalAccessList } = require('./access');
-const Track = mongoose.model('tracks');
+
+
+function saveTrackMongoDB(trackingData) {
+    const Track = db.model('tracks');
+
+    const { account, application, type, event, value } = trackingData;         
+    const track = await new Track({ account, application, type }).save(); 
+    return track;
+}
+
+function saveTrackMySQL(trackingData) {
+    
+}
 
 function validateTrackingAttribute(attribute, properties) {
     const { label, length, type, isRequired} = properties;
@@ -35,8 +56,12 @@ async function saveTrack(trackingData) {
     checkGlobalAccessList(trackingData.account);
     await checkAndUpdateLocalAccessList(trackingData.account);
 
-    const { account, application, type, event, value } = trackingData;         
-    const track = await new Track({ account, application, type }).save();   
+    let track;
+    if (databaseToUse === 'MongoDB') {
+        track = saveTrackMongoDB(trackingData);
+      } else if (databaseToUse === 'MySQL') {
+        track = saveTrackMySQL(trackingData);
+      }
     return track;
 }
 

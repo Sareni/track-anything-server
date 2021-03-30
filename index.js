@@ -1,9 +1,22 @@
-const http = require('http');
-const mongoose = require('mongoose');
-const schedule = require('node-schedule');
-require('./models/Track');
+const databaseToUse = require('./config/keys').databaseName;
 
-const { mongodbConnectionString } = require('./config/keys');
+
+const http = require('http');
+const schedule = require('node-schedule');
+const mysql_lib = require('./mysql_lib');
+
+let db;
+let connectionParams = {};
+let connection;
+if (databaseToUse === 'MongoDB') {
+  db = require('mongoose');
+  require('./models/Track');
+
+  connectionParams['connectionString'] = require('./config/keys').mongodbConnectionString;
+}
+
+
+
 const { host, port } = require('./config/http');
 const { handleResponse } = require('./utils');
 const { handlePOST } = require('./routing');
@@ -23,8 +36,14 @@ async function initServer() {
         }
     });
     
-    mongoose.connect(mongodbConnectionString, { useNewUrlParser: true });
-    console.log(`MongoDB connecting...`);
+    if (databaseToUse === 'MongoDB') {
+      db.connect(connectionParams.connectionString, { useNewUrlParser: true });
+      console.log(`MongoDB connecting...`);
+    } else if (databaseToUse === 'MySQL') {
+      mysql_lib.init();
+    }
+    
+    
     server.listen(port, host);
     console.log(`Tracking Server listening at http://${host}:${port}`);
 }

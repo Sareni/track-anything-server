@@ -12,7 +12,7 @@ module.exports = (app) => {
             await saveTrack(req.body);
             res.send('Track saved successfully!');
         } catch(error) {
-            res.status(500).send('Error - Saving Track');
+            res.status(500).send(`Error - Saving Track: ${error}`);
         }
     });
 
@@ -22,7 +22,7 @@ module.exports = (app) => {
             res.send('Updating Global Access List was successful!');
         } catch(error) {
             console.log(`updateGlobalAccessList: ${error}`);
-            res.status(500).send('Error - Updating Global Access List');
+            res.status(500).send(`Error - Updating Global Access List: ${error}`);
         }
     });
 }

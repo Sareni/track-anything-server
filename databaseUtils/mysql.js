@@ -26,7 +26,10 @@ function save(trackingData) {
     const query = 'INSERT INTO tracks SET ?';
     return new Promise((resolve) => {
         connection.query(query, {account, application, type }, function(error, results, fields) {
-            if(error) throw error;
+            if(error) {
+                console.log(error);
+                throw error;
+            }
             resolve();
         });
     });    

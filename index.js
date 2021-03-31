@@ -7,7 +7,7 @@ const { port } = require('./config/http');
 const { initGlobalAccessList } = require('./access');
 const app = express();
 
-app.use(bodyParser);
+app.use(bodyParser.json());
 require('./routes')(app);
 
 async function initServer() {

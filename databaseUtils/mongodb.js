@@ -1,3 +1,5 @@
+const dbConfig = require('../config/db');
+
 async function init() {
     db = require('mongoose');
     require('./models/Track');

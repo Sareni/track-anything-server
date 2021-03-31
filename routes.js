@@ -10,7 +10,7 @@ module.exports = (app) => {
     app.post('/', async (req, res) => {
         try {
             await saveTrack(req.body);
-            res.send('Track saved successfully!', dbConfig.databaseToUse);
+            res.send('Track saved successfully!');
         } catch(error) {
             res.status(500).send('Error - Saving Track');
         }

@@ -31,7 +31,6 @@ async function initGlobalAccessList() {
 }
 
 function updateGlobalAccessList(data) {
-    console.log(data);
     // update local copy of global account list (create, upgrade, delete user etc., user ran out of tracks, ...)
     Object.entries(data).forEach((entry) => {
         const [key, value] = entry; // TODO shorten entry

@@ -1,64 +1,33 @@
-const databaseToUse = require('./config/keys').databaseName;
-
-
-const http = require('http');
+const express = require('express');
 const schedule = require('node-schedule');
-const mysql_lib = require('./mysql_lib');
+const bodyParser = require('body-parser');
 
-let db;
-let connectionParams = {};
-let connection;
-if (databaseToUse === 'MongoDB') {
-  db = require('mongoose');
-  require('./models/Track');
-
-  connectionParams['connectionString'] = require('./config/keys').mongodbConnectionString;
-}
-
-
-
-const { host, port } = require('./config/http');
-const { handleResponse } = require('./utils');
-const { handlePOST } = require('./routing');
+const dbAdapter = require('./databaseUtils/adapter');
+const { port } = require('./config/http');
 const { initGlobalAccessList } = require('./access');
+const app = express();
 
-
+app.use(bodyParser);
+require('./routes')(app);
 
 async function initServer() {
-    await initGlobalAccessList();
-    const server = http.createServer((req, res) => {
-        switch (req.method) {
-            case 'POST': handlePOST(req, res); break;
-            default: handleResponse(res, {
-                                writeHead: [200, {'Content-Type': 'text/html'}],
-                                end: 'TrackAnything Server'
-                            }); break;
-        }
-    });
-    
-    if (databaseToUse === 'MongoDB') {
-      db.connect(connectionParams.connectionString, { useNewUrlParser: true });
-      console.log(`MongoDB connecting...`);
-    } else if (databaseToUse === 'MySQL') {
-      mysql_lib.init();
-    }
-    
-    
-    server.listen(port, host);
-    console.log(`Tracking Server listening at http://${host}:${port}`);
+    await initGlobalAccessList();    
+    await dbAdapter.init();
+    app.listen(port);
+    console.log(`Tracking Server listening on Port ${port}.`);
 }
 
-
+// start server
 (async () => {
     try {
         await initServer();
-        console.log('server initialized');
+        console.log('Server initialized!');
     } catch (err) {
       console.log('error: ' + err)
     }
   })();
 
-  // run at 4:05 AM
+  // run initGlobalAccessList every day at 4:05 AM
 schedule.scheduleJob('5 4 * * *', () => {
     initGlobalAccessList(); // await is not needed
   });

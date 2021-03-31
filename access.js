@@ -4,12 +4,12 @@ const axios = require('axios');
 
 const serverConfig = require('./config/server');
 const routes = require('./config/routes');
-const keys = require('./config/keys');
+const dbConfig = require('./config/db');
 
 const redisClient = redis.createClient({
-    port: keys.redis_port,
-    host: keys.redis_host,
-    password: keys.redis_password,
+    port: dbConfig.redisConfig.port,
+    host: dbConfig.redisConfig.host,
+    password: dbConfig.redisConfig.password,
 });
 
 const redisGetAsync = promisify(redisClient.get).bind(redisClient);

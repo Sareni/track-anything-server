@@ -1,14 +1,14 @@
-const dbConfig = require('../config/db');
+const mysqlConfig = require('../config/track_anything_server_config').databases.mysql;
 
 const mysql = require('mysql');
 let connection;
 
 function init() {
     connection = mysql.createConnection({
-        host: dbConfig.mysqlConfig.host,
-        user: dbConfig.mysqlConfig.username,
-        password: dbConfig.mysqlConfig.password,
-        database: dbConfig.mysqlConfig.database,
+        host: mysqlConfig.host,
+        user: mysqlConfig.username,
+        password: mysqlConfig.password,
+        database: mysqlConfig.database,
       });
       console.log('MySQL connecting...');
 

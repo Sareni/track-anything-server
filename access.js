@@ -2,14 +2,19 @@ const redis = require('redis');
 const { promisify } = require("util");
 const axios = require('axios');
 
-const serverConfig = require('./config/server');
-const routes = require('./config/routes');
-const dbConfig = require('./config/db');
+const {
+    databases: databaseConfigs,
+    tracking: trackingConfig,
+    accountManagementServer: amsConfig
+} = require('./config/track_anything_server_config');
+
+const { redis: redisConfig } = databaseConfigs;
+const accessManagementServerURL = `${amsConfig.host}:${amsConfig.port}`;
 
 const redisClient = redis.createClient({
-    port: dbConfig.redisConfig.port,
-    host: dbConfig.redisConfig.host,
-    password: dbConfig.redisConfig.password,
+    port: redisConfig.port,
+    host: redisConfig.host,
+    password: redisConfig.password,
 });
 
 const redisGetAsync = promisify(redisClient.get).bind(redisClient);
@@ -23,7 +28,7 @@ let localTrackingCount = 0;
 
 async function initGlobalAccessList() {
     try {
-        const response = await axios.get(routes.accessManagementServerURL + '/fullList');
+        const response = await axios.get(accessManagementServerURL + '/fullList');
         globalAccessList = response.data;
     } catch (e) {
         console.log(e);
@@ -51,7 +56,7 @@ async function checkAndUpdateLocalAccessList(account) {
     const now = Date.now();
     const data = await redisGetAsync(account);
     if (data) {
-        const timeNextTrackAllowed = parseInt(data) + serverConfig.trackingTimeout;
+        const timeNextTrackAllowed = parseInt(data) + trackingConfig.trackingTimeout;
         if (timeNextTrackAllowed > now) {
             throw new Error('Track not allowed yet! Upgrade Account to Business if more tracks are needed.');
         }
@@ -70,14 +75,14 @@ function updateLocalTrackingList(account) {
     }
     localTrackingCount += 1;
 
-    if (localTrackingCount >= serverConfig.trackingCount) {
+    if (localTrackingCount >= trackingConfig.trackingCount) {
         sendTrackingList();
     }
 }
 
 function sendTrackingList() {
     // TODO: race condition?
-    axios.post(routes.accessManagementServerURL + '/trackingList', localTrackingList)
+    axios.post(accessManagementServerURL + '/trackingList', localTrackingList)
          .catch(function (error) {
             console.log(error);
          });

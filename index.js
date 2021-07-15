@@ -3,7 +3,7 @@ const schedule = require('node-schedule');
 const bodyParser = require('body-parser');
 
 const dbAdapter = require('./databaseUtils/adapter');
-const { port } = require('./config/http');
+const { port } = require('./config/track_anything_server_config').trackingServer;
 const { initGlobalAccessList } = require('./access');
 const app = express();
 

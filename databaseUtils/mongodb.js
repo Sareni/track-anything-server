@@ -1,11 +1,11 @@
-const dbConfig = require('../config/db');
+const mongoConfig = require('../config/track_anything_server_config').databases.mongodb;
 
 async function init() {
     db = require('mongoose');
     require('./models/Track');
     console.log(`MongoDB connecting...`);
     try {
-        await db.connect(connectionParams.connectionString, { useNewUrlParser: true });
+        await db.connect(mongoConfig.connectionString, { useNewUrlParser: true });
     } catch(error) {
         throw new Error(`initMongo: ${error}`);
     }

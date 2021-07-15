@@ -1,6 +1,5 @@
 const { saveTrack } = require('./tracking');
 const { updateGlobalAccessList } = require('./access');
-const dbConfig = require('./config/db');
 
 module.exports = (app) => {
     app.get('/', async (req, res) => {

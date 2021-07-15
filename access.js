@@ -9,7 +9,7 @@ const {
 } = require('./config/track_anything_server_config');
 
 const { redis: redisConfig } = databaseConfigs;
-const accessManagementServerURL = `${amsConfig.host}:${amsConfig.port}`;
+const accessManagementServerURL = `http://${amsConfig.host}:${amsConfig.port}`;
 
 const redisClient = redis.createClient({
     port: redisConfig.port,

@@ -25,7 +25,7 @@ function save(trackingData) {
     const { account, application, type, event, value } = trackingData;
     const query = 'INSERT INTO tracks SET ?';
     return new Promise((resolve) => {
-        connection.query(query, {account, application, type }, function(error, results, fields) {
+        connection.query(query, {account, application, type, value, track_date: trackDate }, function(error, results, fields) {
             if(error) {
                 console.log(error);
                 throw error;

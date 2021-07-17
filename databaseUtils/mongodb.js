@@ -15,8 +15,8 @@ async function init() {
 async function save(trackingData) {
     const Track = db.model('tracks');
 
-    const { account, application, type, event, value } = trackingData;         
-    await new Track({ account, application, type }).save();
+    const { account, application, type, value, trackDate } = trackingData;         
+    await new Track({ account, application, type, value, track_date: trackDate }).save();
 }
 
 module.exports = {

@@ -3,7 +3,20 @@ const { updateGlobalAccessList } = require('./access');
 
 module.exports = (app) => {
     app.get('/', async (req, res) => {
-        res.send('TrackAnything Server');
+        const {account, application, type, value, trackDate } = req.query;
+        const params = {
+            account,
+            application,
+            type,
+            value,
+            trackDate,
+        };
+        try {
+            await saveTrack(params);
+            res.send('Track saved successfully!');
+        } catch(error) {
+            res.status(500).send(`Error - Saving Track: ${error}`);
+        }
     });
 
     app.post('/', async (req, res) => {

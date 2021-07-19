@@ -38,6 +38,3 @@ module.exports = (app) => {
         }
     });
 }
-
-
-git filter-branch --force --index-filter "git rm --cached --ignore-unmatch config/keysabc.js" --prune-empty --tag-name-filter cat -- --all

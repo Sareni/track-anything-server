@@ -25,7 +25,7 @@ function save(trackingData) {
     const { account, application, type, event, value, trackDate } = trackingData;
     const query = 'INSERT INTO tracks SET ?';
     return new Promise((resolve) => {
-        connection.query(query, {account, application, type, value, track_date: trackDate.toISOString().slice(0, 19).replace('T', ' ') }, function(error, results, fields) {
+        connection.query(query, {account, application, type, value, track_date: trackDate.slice(0, 19).replace('T', ' ') }, function(error, results, fields) {
             if(error) {
                 console.log(error);
                 throw error;

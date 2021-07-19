@@ -9,7 +9,7 @@ module.exports = (app) => {
             application,
             type,
             value,
-            trackDate: Date.parse(trackDate), // TODO is date probably can be used so no conversion is needed
+            trackDate, // TODO mongodb probably cannot use iso date string
         };
         try {
             await saveTrack(params);

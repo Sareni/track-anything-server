@@ -22,7 +22,7 @@ function init() {
 }
 
 function save(trackingData) {
-    const { account, application, type, event, value } = trackingData;
+    const { account, application, type, event, value, trackDate } = trackingData;
     const query = 'INSERT INTO tracks SET ?';
     return new Promise((resolve) => {
         connection.query(query, {account, application, type, value, track_date: trackDate }, function(error, results, fields) {

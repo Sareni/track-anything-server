@@ -9,7 +9,7 @@ module.exports = (app) => {
             application,
             type,
             value,
-            trackDate: Date.parse(trackDate),
+            trackDate: Date.parse(trackDate), // TODO is date probably can be used so no conversion is needed
         };
         try {
             await saveTrack(params);
